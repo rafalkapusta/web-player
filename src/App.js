@@ -1,25 +1,37 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useReducer, useEffect } from "react";
+import { reducer, initialState } from "./reducer";
+import { GlobalStyle } from "./styled/GlobalStyle";
+import Home from "./views/Home";
+import Notification from "./components/Notification";
+import Splash from "./views/Splash";
 
-function App() {
+const App = () => {
+  const [state, setState] = useReducer(reducer, initialState);
+
+  useEffect(() => {
+    const token = sessionStorage.getItem("token");
+    if (token) {
+      setState({ type: "signIn" });
+      return;
+    }
+    setState({ type: "signOut" });
+  }, []);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <>
+      <GlobalStyle />
+      {state.errors.signIn && (
+        <Notification>
+          Something went wrong. Please sign in again or try later.
+        </Notification>
+      )}
+      {state.isUserSignedIn ? (
+        <Home setState={setState} state={state} />
+      ) : (
+        <Splash setState={setState} state={state} />
+      )}
+    </>
   );
-}
+};
 
 export default App;
